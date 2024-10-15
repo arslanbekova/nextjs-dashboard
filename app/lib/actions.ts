@@ -51,6 +51,8 @@ export type State = {
   message?: string | null;
 };
 
+const calcAmountInCents = (amount: number) => +(amount * 100).toFixed();
+
 export async function createInvoice(prevState: State, formData: FormData) {
 	const validatedFields = CreateInvoice.safeParse({
     customerId: formData.get('customerId'),
@@ -66,7 +68,7 @@ export async function createInvoice(prevState: State, formData: FormData) {
   }
 
   const { customerId, amount, status } = validatedFields.data;
-	const amountInCents = amount * 100;
+	const amountInCents = calcAmountInCents(amount);
 	const date = new Date().toISOString().split('T')[0];
 
 	try {
@@ -99,7 +101,7 @@ export async function updateInvoice(id: string, prevState: State, formData: Form
   }
 
   const { customerId, amount, status } = validatedFields.data;
-  const amountInCents = amount * 100;
+  const amountInCents = calcAmountInCents(amount);
 
   try {
     await sql`
@@ -118,7 +120,6 @@ export async function updateInvoice(id: string, prevState: State, formData: Form
 };
 
 export async function deleteInvoice(id: string) {
-  throw new Error('Failed to Delete Invoice');
   try {
     await sql`DELETE FROM invoices WHERE id = ${id}`;
     revalidatePath('/dashboard/invoices');
